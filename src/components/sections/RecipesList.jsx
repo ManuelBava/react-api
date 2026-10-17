@@ -1,17 +1,32 @@
 import { useState, useEffect } from "react";
 
 export default function RecipesList() {
+  // ENDOPOINTS
+  const recipesEndpoint = "https://dummyjson.com/recipes";
+  const myIpEndpoint = "https://api.ipify.org/?format=json";
+
+  // STATES VARIABLES
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState("");
+  const [ip, setIp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    async function getMyIp() {
+      const response = await fetch(myIpEndpoint);
+
+      const data = await response.json();
+      setIp(data.ip);
+    }
+
+    getMyIp();
+
     async function getRecipes() {
       try {
         setIsLoading(true);
 
-        const response = await fetch("https://dummyjson.com/recipes");
-
+        const response = await fetch(recipesEndpoint);
+        // entra qui solo se la rotta immessa dopo il dominio risulta errata, ed il server non trovando quella rotta dentro di esso ci rimanderà a questa if, ma se immettiamo il dominio sbagliato non arriveremo mai a questa if
         if (!response.ok) {
           const e = new Error("Error fetching your data, please try later");
           console.log(e);
@@ -51,9 +66,8 @@ export default function RecipesList() {
   }, []);
 
   return (
-    <section className="container my-4">
+    <section className="container my-4 position-relative">
       <h2 className="mb-4 text-center">Recipes List</h2>
-
       {isLoading && (
         <div className="d-flex justify-content-center align-items-center py-5 gap-3">
           <div className="spinner-border text-primary" role="status"></div>
@@ -88,6 +102,11 @@ export default function RecipesList() {
           ))}
         </div>
       )}
+      <div className="d-flex justify-content-end my-4">
+        <span className="badge bg-primary border rounded-1 px-3 py-2">
+          My ip: {ip}
+        </span>
+      </div>
     </section>
   );
 }
